@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จดหมายรัก - Love Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+    <script type="text/javascript">
+    (function(){
+        emailjs.init({
+            publicKey: "iM0_jt5h69jIIsqS_",
+        });
+    })();
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8e8ff, #e8d5ff, #f0e6ff);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        /* Static Stars Background */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .static-star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+        }
+
+        .static-star svg {
+            width: 100%;
+            height: 100%;
+            fill: #fbbf24;
+        }
+
+        /* Envelope Styles */
+        .envelope-container {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .envelope-container:hover {
+            transform: scale(1.05);
+        }
+
+        .envelope-container.opened {
+            transform: scale(1.05);
+        }
+
+        .envelope {
+            width: 400px;
+            height: 280px;
+            background: white;
+            border: 3px solid #e879f9;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top;
+            transition: transform 0.7s ease;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg); /* เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่ากลับสู่สถานะเดิม */
+        }
+
+        .envelope-flap.opened {
+            transform: rotateX(180deg);
+        }
+
+        .heart-seal {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .heart-icon {
+            width: 28px;
+            height: 28px;
+            animation: pulse 2s infinite;
+        }
+
+        .heart-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+
+        /* Instruction Styles */
+        .instruction-container {
+            margin-top: 40px;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .instruction-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(8px);
+            padding: 16px 32px;
+            border-radius: 50px;
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+            border: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .instruction-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(236, 72, 153, 0.4);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+            animation: pulse 2s infinite;
+        }
+
+        .hearts-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .bounce-heart {
+            width: 20px;
+            height: 20px;
+            animation: bounce 1.5s infinite;
+        }
+
+        .bounce-heart svg {
+            width: 100%;
+            height: 100%;
+            fill: #ec4899;
+        }
+
+        .bounce-heart:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .bounce-heart:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .close-button {
+            position: fixed;
+            top: 32px;
+            right: 32px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #f9a8d4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1010;
+            font-size: 18px;
+            color: #ec4899;
+            font-weight: bold;
+        }
+
+        .close-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        /* Letter Content Styles */
+        .letter-content {
+            padding: 40px;
+            max-height: 100%;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #f9a8d4;
+            padding-bottom: 30px;
+        }
+
+        .hearts-header {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .heart-pulse {
+            width: 24px;
+            height: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        .heart-pulse svg {
+            width: 100%;
+            height: 100%;
+            fill: #ec4899;
+        }
+
+        .heart-pulse:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .heart-pulse:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .letter-title {
+          
+            font-size: 52px;
+            font-weight: bold;
+            color: #ec4899;
+            margin-bottom: 20px;
+        }
+
+        .date-placeholder,
+        .date-display {
+            color: #6b7280;
+            font-style: italic;
+            font-size: 16px;
+        }
+
+        /* Form Styles */
+        .letter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            color: #ec4899;
+            font-weight: 600;
+            min-width: 80px;
+            font-size: 16px;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #f9a8d4;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border: 2px solid #f9a8d4;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .signature-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .signature-input {
+            width: 140px;
+            flex: none;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            color: white;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 32px auto 0;
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #be185d, #7c3aed);
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(236, 72, 153, 0.4);
+        }
+
+        /* Floating Elements */
+        .floating-heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 5;
+            width: 16px;
+            height: 16px;
+            animation: floatUp 4s ease-out forwards;
+        }
+
+        .floating-heart svg {
+            width: 100%;
+            height: 100%;
+            fill: #f472b6;
+        }
+
+        .floating-star {
+            position: fixed;
+            pointer-events: none;
+            z-index: 5;
+            width: 16px;
+            height: 16px;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        .floating-star svg {
+            width: 100%;
+            height: 100%;
+            fill: #fbbf24;
+        }
+
+        .celebration-heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 120;
+            width: 32px;
+            height: 32px;
+            animation: celebrationHeart 3s ease-out forwards;
+        }
+
+        .celebration-heart svg {
+            width: 100%;
+            height: 100%;
+            fill: #ec4899;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-12px); }
+            70% { transform: translateY(-6px); }
+            90% { transform: translateY(-3px); }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes celebrationHeart {
+            0% { 
+                transform: translateY(0px) rotate(0deg) scale(0.5); 
+                opacity: 1; 
+            }
+            50% { 
+                transform: translateY(-50vh) rotate(180deg) scale(1.2); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(-100vh) rotate(360deg) scale(0.8); 
+                opacity: 0; 
+            }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; transform: scale(0.8) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .envelope {
+                width: 320px;
+                height: 220px;
+            }
+
+            .envelope-flap {
+                height: 110px;
+            }
+
+            .heart-seal {
+                top: 55px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .heart-icon {
+                width: 24px;
+                height: 24px;
+            }
+
+            .letter-content {
+                padding: 24px;
+            }
+
+            .letter-title {
+                font-size: 40px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .form-label {
+                min-width: auto;
+            }
+
+            .signature-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .signature-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Static Stars Background -->
+    <div class="stars-container" id="starsContainer"></div>
+
+    <div class="container">
+        <!-- Envelope -->
+        <div class="envelope-container" id="envelopeContainer">
+            <div class="envelope">
+                <div class="envelope-flap" id="envelopeFlap">
+                    <div class="heart-seal">
+                        <div class="heart-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instruction Button -->
+        <div class="instruction-container">
+            <button class="instruction-button" id="instructionButton">
+                <div class="pulse-dot"></div>
+                <span id="instructionText">คลิกที่ซองจดหมายเพื่อเปิด</span>
+            </button>
+            <div class="hearts-row">
+                <div class="bounce-heart">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+                <div class="bounce-heart">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+                <div class="bounce-heart">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-button" id="closeButton">✕</button>
+            
+            <!-- Default Letter View -->
+            <div class="letter-content" id="defaultView">
+                <div class="letter-header">
+                    <div class="hearts-header">
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h1 class="letter-title">Happy Anniversary nakub  </h1>
+                    <div class="date-placeholder">วันที่ 11 ก.ค. 2568</div>
+                </div>
+
+                <div class="letter-body">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <span class="form-label">ถึง แฟนคนสวยที่น่ารักที่สุด</span>
+                       
+                    </div>
+
+                    <div style="margin-left: 32px; margin-bottom: 24px;">
+                        <div style=" height: 32px; margin-bottom: 24px;">สวัสดีคับหมูอ้วน ถ้าเห็นแกข้อความนี้แล้วมันคงจะเป็นตอนนี้เค้าทำเว็ปนี้เสร็จแล้ว ตอนแรกตั้งใจจะทำให้ดีกว่านี้มากๆ แต่ทำไม่ทันแล้วนอยมาก525252555 พับเรื่องนั้นไว้ก่อน
+เหมือนมันเป็นธรรมเนียมไปแล้วเนอะที่เราจะเขียนแลกข้อความกันแบบนี้ในทุกๆปีของแต่ละวันสำคัญ เค้ารู้สึกว่าในแต่ละปีเค้าจะอยากฝากเรื่องที่เค้าเป็นห่วงแกไว้เสมอแต่ปีนี้เค้าไม่ต้องเป็นห่วงอะไรเยอะแยะเลยเพราะแกเองก็โตขึ้นมากๆในแต่ละปีจนไม่ต้องเตือนอะไรและ ซึ่งเรื่องนี้เค้าดีใจมากนะ :) 
+จะว่าไปปีนี้ก็เข้าปีที่4แล้วที่เราได้อยู่ด้วยกัน เค้ามีความรู้สึกขัดแย้งกันอยู่ในใจว่าถึงแม้ว่าในบางครั้งเค้าเองจะรู้สึกว่ามันไวมากๆ ที่แป๊ปๆก็สี่ปีแล้ว แต่อีกมุมเค้าก็คิดว่าเราอยู่ด้วยกันมานานม้ากกกกก จนเหมือนไม่ใช่แค่สี่ปีเลย เพราะเราเองก็ผ่านอะไรด้วยกันมาเยอะมากๆจริงๆ
+บางที่อยู่ๆแกก็ชอบถามว่าเค้าชอบแกที่ตรงไหนบ้าง ซึ่งบางครั้งเค้าก็จะตอบดีบ้าง กวนตีนบ้าง ไม่ก็งงๆใส่ไปบ้าง ที่เป็นแบบนี้เพราะเค้ารู้สึกว่าเค้ารักทุกสิ่งที่แกเป็นแกเลยนะ ไม่ว่าจะเป็นรอยยิ้มเวลาที่แกชอบขำมุกอะไรก็ไม่รู้ ท่าทางนั่งอิ่มหลังกินบุฟเฟต์ที่ดูจากดวงจันทร์ยังรู้ว่าแกอิ่ม  การที่แกเดินจับมือเค้าตลอดไม่ว่าจะแค่ออกไปกินข้าวหน้าปากซอย จนถึงไปที่ไกลๆ การที่แกอยู่ข้างๆเค้าเสมอไม่ว่าจะเกิดอะไรขึ้น และอีกล้านแปดที่ถ้าจะให้พูดให้หมดหน้านี้คงไม่พอแน่ๆ เอาเป็นว่าเค้าอยากให้แกรู้ว่าเค้ารักแกมากๆสุดหัวใจเลยนะ <3 ขอบคุณนะที่ทำให้โลกจืดๆชืดๆของเค้ามีสีสันมากมายตลอด4ปีที่ผ่านมา การมีอยู่ของแกทำให้เค้ารู้สึกว่าชีวิตเค้ามีความหมายมากขึ้นมากๆเลยนะ สุขสันต์วันครบรอบ4ปีของเรานะคับ เค้ารักแกที่สุดเลยอยู่เติมสีสันในชีวิตของแต่ละคนด้วยกันไปนานๆเลยนะคับที่รัก♡</div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        <div style="border-bottom: 2px solid #fce7f3; height: 32px; margin-bottom: 24px; opacity: 0;"></div>
+                        
+                    </div>
+
+                    <div style="margin-top: 48px; text-align: right; border-top: 2px solid #f9a8d4; padding-top: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-bottom: 16px;">
+                            <span class="form-label">รักมากกว่า</span>
+                            <div >ต้นรักสุดหล่อ</div>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px;">
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Writing Form -->
+            <div class="letter-content hidden" id="writingView">
+                <div class="letter-header">
+                    <div class="hearts-header">
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h1 class="letter-title">เขียนอะไรหน่อยมั้ย?</h1>
+                </div>
+
+                <form id="letterForm" class="letter-form">
+                    <div class="form-row">
+                        <label class="form-label">วันที่:</label>
+                        <input type="text" class="form-input" id="dateInput" placeholder="เช่น 14 กุมภาพันธ์ 2567" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">ถึง:</label>
+                        <input type="text" class="form-input" id="toInput" placeholder="ชื่อคนที่คุณรัก" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">ข้อความ:</label>
+                        <textarea class="form-textarea" id="messageInput" placeholder="เขียนข้อความรักของคุณที่นี่..." required></textarea>
+                    </div>
+
+                    <div class="signature-row">
+                        <input type="text" class="form-input signature-input" id="signatureInput" placeholder="คำลงท้าย" required>
+                        <input type="text" class="form-input" id="fromInput" placeholder="ชื่อของคุณ" value="น่านฟ้าหมูอ้วนอู๊ดๆๆๆๆๆๆ" required>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        <span>📤</span>
+                        ดูตัวอย่าง
+                    </button>
+                </form>
+            </div>
+
+            <!-- Preview -->
+            <div class="letter-content hidden" id="previewView">
+                <div class="letter-header">
+                    <div class="hearts-header">
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                        <div class="heart-pulse">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h1 class="letter-title">จดหมายรัก</h1>
+                    <div class="date-display">วันที่ <span id="previewDate"></span></div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <span class="form-label">ถึง:</span>
+                        <span style="flex: 1; color: #374151; font-weight: 500;" id="previewTo"></span>
+                    </div>
+
+                    <div style="line-height: 1.6; white-space: pre-wrap; color: #374151; margin: 24px 0; word-wrap: break-word;" id="previewMessage"></div>
+
+                    <div style="margin-top: 48px; text-align: right; border-top: 2px solid #f9a8d4; padding-top: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-bottom: 16px;">
+                            <span class="form-label" id="previewSignature">ด้วยรัก</span>
+                            <span style="color: #374151; font-weight: 500;" id="previewFrom"></span>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px;">
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                            <div class="bounce-heart">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: center; gap: 16px; margin-top: 24px;">
+                        <button style="background: white; color: #ec4899; border: 1px solid #f9a8d4; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 500;" id="editButton">แก้ไข</button>
+                        <button style="background: linear-gradient(135deg, #ec4899, #a855f7); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 500;" id="sendButton" onclick="sendLetter()">ส่งจดหมาย</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let isLetterOpen = false;
+        let hasOpenedLetter = false;
+        let currentView = 'default';
+        const letterData = {
+            date: '',
+            to: '',
+            message: '',
+            signature: 'ด้วยรัก',
+            from: ''
+        };
+
+        // DOM elements
+        const elements = {
+            envelopeContainer: document.getElementById('envelopeContainer'),
+            envelopeFlap: document.getElementById('envelopeFlap'),
+            instructionButton: document.getElementById('instructionButton'),
+            instructionText: document.getElementById('instructionText'),
+            modal: document.getElementById('modal'),
+            closeButton: document.getElementById('closeButton'),
+            defaultView: document.getElementById('defaultView'),
+            writingView: document.getElementById('writingView'),
+            previewView: document.getElementById('previewView'),
+            letterForm: document.getElementById('letterForm'),
+            dateInput: document.getElementById('dateInput'),
+            toInput: document.getElementById('toInput'),
+            messageInput: document.getElementById('messageInput'),
+            signatureInput: document.getElementById('signatureInput'),
+            fromInput: document.getElementById('fromInput'),
+            previewDate: document.getElementById('previewDate'),
+            previewTo: document.getElementById('previewTo'),
+            previewMessage: document.getElementById('previewMessage'),
+            previewSignature: document.getElementById('previewSignature'),
+            previewFrom: document.getElementById('previewFrom'),
+            editButton: document.getElementById('editButton'),
+            sendButton: document.getElementById('sendButton'),
+            starsContainer: document.getElementById('starsContainer')
+        };
+
+        // Create static stars background
+        function createStaticStars() {
+            const starPositions = [
+                { x: 10, y: 15 }, { x: 85, y: 8 }, { x: 92, y: 25 },
+                { x: 15, y: 45 }, { x: 88, y: 55 }, { x: 5, y: 75 },
+                { x: 25, y: 85 }, { x: 75, y: 90 }, { x: 95, y: 75 },
+                { x: 45, y: 12 }, { x: 65, y: 35 }, { x: 35, y: 65 }
+            ];
+
+            starPositions.forEach(pos => {
+                const star = document.createElement('div');
+                star.className = 'static-star';
+                star.style.left = pos.x + '%';
+                star.style.top = pos.y + '%';
+                star.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                `;
+                elements.starsContainer.appendChild(star);
+            });
+        }
+
+        // Floating elements functions
+        function createFloatingHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.style.left = Math.random() * window.innerWidth + 'px';
+                heart.style.top = window.innerHeight + 50 + 'px';
+                heart.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                `;
+                document.body.appendChild(heart);
+
+                setTimeout(() => heart.remove(), 4000);
+            }, 4000);
+        }
+
+        function createFloatingStars() {
+            setInterval(() => {
+                const star = document.createElement('div');
+                star.className = 'floating-star';
+                star.style.left = Math.random() * window.innerWidth + 'px';
+                star.style.top = Math.random() * window.innerHeight + 'px';
+                star.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                `;
+                document.body.appendChild(star);
+
+                setTimeout(() => star.remove(), 3000);
+            }, 3000);
+        }
+
+        function createCelebrationHearts() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'celebration-heart';
+                    heart.style.left = Math.random() * window.innerWidth + 'px';
+                    heart.style.top = window.innerHeight + 50 + 'px';
+                    heart.innerHTML = `
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    `;
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => heart.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        // Main functions
+        function openLetter() {
+            if (!isLetterOpen) {
+                isLetterOpen = true;
+                hasOpenedLetter = true;
+                elements.envelopeContainer.classList.add('opened');
+                elements.envelopeFlap.classList.add('opened');
+                elements.modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                
+                elements.instructionText.textContent = 'เขียนอะไรถึงคนที่คุณรักด้วยมั้ย :)';
+                
+                // แสดง default view
+                showView('default');
+            }
+        }
+
+        function closeLetter() {
+            isLetterOpen = false;
+            elements.modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // รีเซ็ต envelope animation กลับสู่สถานะเดิม
+            elements.envelopeContainer.classList.remove('opened');
+            elements.envelopeFlap.classList.remove('opened');
+            
+            // รีเซ็ต instruction text กลับสู่สถานะเดิม
+            if (hasOpenedLetter) {
+                elements.instructionText.textContent = 'เขียนอะไรถึงคนที่คุณรักด้วยมั้ย :)';
+            } else {
+                elements.instructionText.textContent = 'คลิกที่ซองจดหมายเพื่อเปิด';
+            }
+            
+            showView('default');
+        }
+
+        function startWriting() {
+            if (hasOpenedLetter) {
+                isLetterOpen = true;
+                elements.modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                showView('writing');
+            }
+        }
+
+        function showView(view) {
+            elements.defaultView.classList.add('hidden');
+            elements.writingView.classList.add('hidden');
+            elements.previewView.classList.add('hidden');
+            
+            if (view === 'default') {
+                elements.defaultView.classList.remove('hidden');
+            } else if (view === 'writing') {
+                elements.writingView.classList.remove('hidden');
+            } else if (view === 'preview') {
+                elements.previewView.classList.remove('hidden');
+            }
+            
+            currentView = view;
+        }
+
+        function showPreview() {
+            elements.previewDate.textContent = letterData.date;
+            elements.previewTo.textContent = letterData.to;
+            elements.previewMessage.textContent = letterData.message;
+            elements.previewSignature.textContent = letterData.signature;
+            elements.previewFrom.textContent = letterData.from;
+            
+            showView('preview');
+        }
+
+        function sendLetter() {
+            let parms ={
+                
+                date : document.getElementById("dateInput").value,
+                author : document.getElementById("fromInput").value,
+                who : document.getElementById("toInput").value,
+                message : document.getElementById("messageInput").value,
+                lastmsg : document.getElementById("signatureInput").value,
+            }
+            createCelebrationHearts();
+            emailjs.send("service_Ton4Y","template_q32s5ac",parms)
+            setTimeout(() => {
+                alert('จดหมายของคุณถูกส่งแล้ว! 💕');
+                closeLetter();
+            }, 1000);
+        }
+
+        // Event listeners
+        function initializeEventListeners() {
+            elements.envelopeContainer.addEventListener('click', openLetter);
+            elements.instructionButton.addEventListener('click', startWriting);
+            elements.closeButton.addEventListener('click', closeLetter);
+
+            elements.letterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                letterData.date = elements.dateInput.value;
+                letterData.to = elements.toInput.value;
+                letterData.message = elements.messageInput.value;
+                letterData.signature = elements.signatureInput.value;
+                letterData.from = elements.fromInput.value;
+                showPreview();
+            });
+
+            elements.editButton.addEventListener('click', () => showView('writing'));
+            elements.sendButton.addEventListener('click', sendLetter);
+
+            elements.modal.addEventListener('click', (e) => {
+                if (e.target === elements.modal) {
+                    closeLetter();
+                }
+            });
+        }
+
+        // Initialize application
+        function init() {
+            createStaticStars();
+            initializeEventListeners();
+            createFloatingHearts();
+            createFloatingStars();
+        }
+
+        // Start the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
